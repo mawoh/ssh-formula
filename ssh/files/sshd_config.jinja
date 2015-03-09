@@ -1,0 +1,64 @@
+{%-  set vars = [
+        { 'name': 'Port', 'value': '22' },
+        { 'name': 'Protocol', 'value': 2 },
+        { 'name': 'HostKey', 'value': ['/etc/ssh/ssh_host_rsa_key', '/etc/ssh/ssh_host_dsa_key', '/etc/ssh/ssh_host_ecdsa_key'] },
+        { 'name': 'UsePrivilegeSeparation', 'value': 'yes' },
+        { 'name': 'KeyRegenerationInterval', 'value': 3600 },
+        { 'name': 'ServerKeyBits', 'value': 768 },
+        { 'name': 'SyslogFacility', 'value': 'AUTH' },
+        { 'name': 'LogLevel', 'value': 'INFO' },
+        { 'name': 'LoginGraceTime', 'value': '120' },
+        { 'name': 'PermitRootLogin', 'value': 'yes' },
+        { 'name': 'StrictModes', 'value': 'yes' },
+        { 'name': 'RSAAuthentication', 'value': 'yes' },
+        { 'name': 'PubkeyAuthentication', 'value': 'yes' },
+        { 'name': 'IgnoreRhosts', 'value': 'yes' },
+        { 'name': 'RhostsRSAAuthentication', 'value': 'no' },
+        { 'name': 'HostbasedAuthentication', 'value': 'no' },
+        { 'name': 'PermitEmptyPasswords', 'value': 'no' },
+        { 'name': 'ChallengeResponseAuthentication', 'value': 'no' },
+        { 'name': 'PasswordAuthentication', 'value': 'yes' },
+        { 'name': 'X11Forwarding', 'value': 'yes' },
+        { 'name': 'X11DisplayOffset', 'value': '10' },
+        { 'name': 'PrintMotd', 'value': 'no' },
+        { 'name': 'PrintLastLog', 'value': 'yes' },
+        { 'name': 'TCPKeepAlive', 'value': 'yes' },
+        { 'name': 'AcceptEnv', 'value': 'LANG LC_*' },
+        { 'name': 'Subsystem', 'value': 'sftp /usr/lib/openssh/sftp-server' },
+        { 'name': 'UsePAM', 'value': 'yes' },
+    ]
+%}
+
+{%- for var in vars -%}
+{%- if pillar.ssh is defined and pillar.ssh[var.name] is defined -%}
+
+  {%- set val = pillar.ssh[var.name] -%}
+
+{%- else -%}
+
+  {%- set val = var.value %}
+
+{%- endif %}
+
+{#- Fix val if value is False or True because in pillar it was no or yes -#}
+{#- See https://groups.google.com/forum/#!topic/salt-users/r5aQqnnNayc -#}
+
+{%- if val == True -%}
+  {%- set val = 'yes' -%}
+{%- elif val == False -%}
+  {%- set val = 'no' -%}
+{%- endif -%}
+
+{#- Output -#}
+
+{%- if val is sequence and val is not string %}
+  {%- for i in val %}
+{{ var.name }} {{ i }}
+  {%- endfor %}
+{%- else %}
+{{ var.name }} {{ val }}
+{%- endif %}
+
+{%- endfor %}
+
+{#- TODO: write all vars available in pillar but not in vars -#}
