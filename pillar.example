@@ -1,0 +1,4 @@
+# Defaults are set as in debian
+
+ssh:
+  PasswordAuthentication: no
